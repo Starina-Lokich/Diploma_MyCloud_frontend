@@ -8,8 +8,8 @@
 
 Комплексное веб-приложение, включающее:
 
- - бэкенд на языке Python с использованием фреймворка Django и СУБД PostgreSQL (https://github.com/...);
+ - бэкенд на языке Python с использованием фреймворка Django и СУБД PostgreSQL (https://github.com/Starina-Lokich/Diploma_MyCloud);
 
  - фронтенд на языках JavaScript, HTML, CSS с использованием библиотек React, Redux, React Router.
 
- - Рразвернуть приложение на Рег.ру можно по инструкции, описанной в README.md: https://github.com/...
+ - Рразвернуть приложение на Рег.ру можно по инструкции, описанной в README.md: https://github.com/Starina-Lokich/Diploma_MyCloud
