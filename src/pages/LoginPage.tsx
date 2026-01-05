@@ -13,15 +13,37 @@ const LoginPage: React.FC = () => {
 
   const [loading, setLoading] = useState(false);
 
+  // Валидация формы
+  const validateForm = () => {
+    // Валидация логина (как в RegisterPage)
+    const usernameRegex = /^[a-zA-Z][a-zA-Z0-9]{3,19}$/;
+    if (!usernameRegex.test(username)) {
+      setError('Логин должен начинаться с буквы, содержать 4-20 символов (латиница и цифры)');
+      return false;
+    }
+    
+    // Валидация пароля (не пустой)
+    if (!password.trim()) {
+      setError('Введите пароль');
+      return false;
+    }
+    
+    return true;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError('');
 
+    // Клиентская валидация
+    if (!validateForm()) {
+      setLoading(false);
+      return;
+    }
+
     try {
-      // console.log('Login starts...');
       const user = await dispatch(loginUser({ username, password })).unwrap();
-      // console.log('Login successful', user);
 
       if (user.is_admin) {
         navigate('/admin');
@@ -29,7 +51,7 @@ const LoginPage: React.FC = () => {
         navigate('/storage');
       }
     } catch (err: any) {
-    setError(err.payload?.detail || 'Неверные учетные данные');
+      setError(err.payload?.detail || 'Неверные учетные данные');
     } finally {
       setLoading(false);
     }
