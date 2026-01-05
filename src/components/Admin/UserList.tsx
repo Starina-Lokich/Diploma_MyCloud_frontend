@@ -3,13 +3,13 @@ import { Link } from 'react-router-dom';
 import { useAppSelector,  useAppDispatch } from '../../store/hooks';
 import UserItem from './UserItem';
 import { formatBytes } from '../../utils/formatUtils';
-import { fetchUsers, deleteUser, updateUserAdminStatus } from '../../store/slices/userSlice';
+import { fetchUsers, deleteUser, updateUser  } from '../../store/slices/userSlice';
 
 
 const UserList: React.FC = () => {
   const { users, loading, error } = useAppSelector(state => state.users);
   const dispatch = useAppDispatch();
-  console.log('Users:', users);
+  // console.log('Users:', users);
 
   useEffect(() => {
     dispatch(fetchUsers());

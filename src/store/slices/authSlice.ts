@@ -29,12 +29,12 @@ export const fetchCSRFToken = createAsyncThunk('auth/csrf', async () => {
 export const loginUser = createAsyncThunk(
   'auth/login',
   async (credentials: LoginCredentials, thunkAPI) => {
-    console.log('start login....')
+    // console.log('start login....')
     try {
       // Получаем CSRF токен перед логином
       await getCSRFToken();
       const response = await api.post<User>('/auth/login/', credentials);
-      console.log('login with response:', response);
+      // console.log('login with response:', response);
 
       if (response.data && response.data.id) {
         return response.data;  // Возвращаем данные пользователя

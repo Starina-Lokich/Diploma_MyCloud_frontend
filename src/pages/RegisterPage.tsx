@@ -26,8 +26,17 @@ const RegisterPage: React.FC = () => {
     }
 
     // Валидация email
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      newErrors.email = 'Некорректный формат email';
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (!emailRegex.test(email)) {
+        newErrors.email = 'Введите корректный email адрес';
+    }
+    
+    // Дополнительные проверки
+    if (email.includes('..')) {
+        newErrors.email = 'Email не должен содержать две точки подряд';
+    }
+    if (email.startsWith('.') || email.endsWith('.')) {
+        newErrors.email = 'Email не должен начинаться или заканчиваться точкой';
     }
 
 
@@ -47,7 +56,7 @@ const RegisterPage: React.FC = () => {
     if (!validate()) return;
 
     try {
-      console.log('Registration starts...');
+      // console.log('Registration starts...');
       const response = await dispatch(registerUser({
         username,
         first_name: firstName,
@@ -56,7 +65,7 @@ const RegisterPage: React.FC = () => {
         password
       })).unwrap();
 
-      console.log('Registration successful:', response);
+      // console.log('Registration successful:', response);
 
       const user = (response as { user: { is_admin: boolean } }).user;
       if (user.is_admin) {
@@ -83,13 +92,18 @@ const RegisterPage: React.FC = () => {
             : backendErrors.non_field_errors;
         }
 
-        ['password', 'email'].forEach(field => {
-          if (backendErrors[field] && !newErrors[field]) {
-            newErrors[field] = Array.isArray(backendErrors[field])
-              ? backendErrors[field][0]
-              : backendErrors[field];
-          }
-        });
+        if (!errors.email && backendErrors.email) {
+            newErrors.email = Array.isArray(backendErrors.email)
+                ? backendErrors.email[0]
+                : backendErrors.email;
+        }
+        
+        // Обработка ошибок password с сервера (только если нет клиентской ошибки)
+        if (!errors.password && backendErrors.password) {
+            newErrors.password = Array.isArray(backendErrors.password)
+                ? backendErrors.password[0]
+                : backendErrors.password;
+        }
 
         setErrors(newErrors);
       } else {

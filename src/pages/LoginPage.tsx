@@ -19,9 +19,9 @@ const LoginPage: React.FC = () => {
     setError('');
 
     try {
-      console.log('Login starts...');
+      // console.log('Login starts...');
       const user = await dispatch(loginUser({ username, password })).unwrap();
-      console.log('Login successful', user);
+      // console.log('Login successful', user);
 
       if (user.is_admin) {
         navigate('/admin');
