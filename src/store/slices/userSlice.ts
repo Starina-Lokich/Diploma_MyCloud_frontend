@@ -14,7 +14,6 @@ const initialState: UserState = {
   error: null,
 };
 
-
 export const fetchUsers = createAsyncThunk<User[], void, { rejectValue: string }>(
   'users/fetch',
   async (_, thunkAPI) => {
@@ -47,6 +46,24 @@ export const updateUser = createAsyncThunk<User, { userId: string; userData: Par
   }
 );
 
+// НОВЫЙ THUNK ДЛЯ ПЕРЕКЛЮЧЕНИЯ АДМИНИСТРАТОРА
+export const toggleUserAdmin = createAsyncThunk<
+  User,
+  { userId: string; isAdmin: boolean },
+  { rejectValue: string }
+>('users/toggleAdmin', async ({ userId, isAdmin }, thunkAPI) => {
+  try {
+    const response = await api.patch(`/users/${userId}/toggle_admin/`, {
+      is_admin: isAdmin,
+    });
+    return response.data;
+  } catch (error: any) {
+    return thunkAPI.rejectWithValue(
+      error.response?.data?.detail || 'Ошибка изменения прав администратора'
+    );
+  }
+});
+
 export const deleteUser = createAsyncThunk('users/delete', async (userId: string) => {
   await api.delete(`/auth/users/${userId}/`);
   return userId;
@@ -76,10 +93,19 @@ const userSlice = createSlice({
           state.users[index] = action.payload;
         }
       })
+      // ДОБАВЛЯЕМ ОБРАБОТКУ toggleUserAdmin
+      .addCase(toggleUserAdmin.fulfilled, (state, action) => {
+        const index = state.users.findIndex(u => u.id === action.payload.id);
+        if (index !== -1) {
+          state.users[index] = action.payload;
+        }
+      })
       .addCase(deleteUser.fulfilled, (state, action) => {
         state.users = state.users.filter(user => user.id !== action.payload);
       });
   },
 });
 
+// Экспортируем новый thunk
+export { toggleUserAdmin };
 export default userSlice.reducer;

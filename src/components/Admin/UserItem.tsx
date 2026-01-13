@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { FaTimes  } from 'react-icons/fa';
+import { FaTimes } from 'react-icons/fa';
 import type { User } from '../../types/userTypes';
-import { formatBytes } from '../../utils/formatUtils';
 import { useAppDispatch } from '../../store/hooks';
-import { updateUser, deleteUser } from '../../store/slices/userSlice';
+import { toggleUserAdmin, deleteUser } from '../../store/slices/userSlice'; // ИЗМЕНЁН ИМПОРТ
 
 interface UserItemProps {
   user: User;
@@ -12,20 +11,26 @@ interface UserItemProps {
 
 const UserItem: React.FC<UserItemProps> = ({ user }) => {
   const [isAdmin, setIsAdmin] = useState(user.is_admin);
+  const [loading, setLoading] = useState(false); // Добавлено состояние загрузки
   const dispatch = useAppDispatch();
 
   const handleAdminChange = async () => {
     const newValue = !isAdmin;
     setIsAdmin(newValue);
+    setLoading(true);
 
     try {
-      await dispatch(updateUser({
-        userId: user.id,
-        userData: { is_admin: newValue }
-      })).unwrap();
+      await dispatch(
+        toggleUserAdmin({
+          userId: user.id.toString(), // userId должен быть строкой
+          isAdmin: newValue,
+        })
+      ).unwrap();
     } catch (err) {
       setIsAdmin(!newValue); // Откат при ошибке
       alert('Ошибка обновления прав доступа');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -35,7 +40,7 @@ const UserItem: React.FC<UserItemProps> = ({ user }) => {
       return;
     }
     if (window.confirm(`Удалить пользователя ${user.username}?`)) {
-      dispatch(deleteUser(user.id));
+      dispatch(deleteUser(user.id.toString())); // userId должен быть строкой
     }
   };
 
@@ -43,22 +48,22 @@ const UserItem: React.FC<UserItemProps> = ({ user }) => {
     <tr className="hover:bg-gray-50">
       <td className="py-2 px-4 border-b">{user.username}</td>
       <td className="py-2 px-4 border-b">{user.email}</td>
-      <td>{user.first_name}</td>
-      <td>{user.last_name}</td>
+      <td className="py-2 px-4 border-b">{user.first_name || '-'}</td>
+      <td className="py-2 px-4 border-b">{user.last_name || '-'}</td>
       <td className="py-2 px-4 border-b">
         <input
           type="checkbox"
           checked={isAdmin}
           onChange={handleAdminChange}
+          disabled={loading}
           className="h-5 w-5"
         />
       </td>
       <td className="py-2 px-4 border-b">{user.file_count}</td>
-      <td className="py-2 px-4 border-b">{(user.formatted_total_file_size ?? 0)}</td>
+      <td className="py-2 px-4 border-b">{user.formatted_total_file_size || '0 B'}</td>
 
       {/* Действия */}
-
-      <td className="actions-column">
+      <td className="actions-column py-2 px-4 border-b">
         <div className="relative flex items-center gap-3">
           <Link
             to={`/storage?user=${user.id}`}
