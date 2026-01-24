@@ -107,5 +107,4 @@ const userSlice = createSlice({
 });
 
 // Экспортируем новый thunk
-export { toggleUserAdmin };
 export default userSlice.reducer;
